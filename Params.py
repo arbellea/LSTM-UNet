@@ -5,12 +5,9 @@ import Networks as Nets
 
 __author__ = 'arbellea@post.bgu.ac.il'
 
-# ROOT_SAVE_DIR = '/Users/aarbelle/Documents/DeepCellSegOut'
-# ROOT_DATA_DIR3D = '/Users/aarbelle/Documents/CellTrackingChallenge/Training'
 
-
-ROOT_DATA_DIR = '/media/rrtammyfs/labDatabase/CellTrackingChallenge/Training/'
-ROOT_SAVE_DIR = '/newdisk/arbellea/LSTMUNet-tf2/'
+ROOT_DATA_DIR = '~/CellTrackingChallenge/Training/'
+ROOT_SAVE_DIR = '~/LSTM-UNet-Outputs/'
 
 
 class ParamsBase(object):
@@ -28,18 +25,17 @@ class ParamsBase(object):
 class CTCParams(ParamsBase):
     # --------General-------------
     experiment_name = 'MyRun_SIM'
-    dry_run = False  # Default False! Used for testing, when True no checkpoints or tensorboard outputs will be saved
     gpu_id = 0  # set -1 for CPU or GPU index for GPU.
 
     #  ------- Data -------
     data_provider_class = DataHandeling.CTCRAMReaderSequence2D
     root_data_dir = ROOT_DATA_DIR
-    train_sequence_list = [('Fluo-N2DH-SIM+', '01'), ('Fluo-N2DH-SIM+', '02')]
+    train_sequence_list = [('Fluo-N2DH-SIM+', '01'), ('Fluo-N2DH-SIM+', '02')]  # [('Dataset Name', 'SequenceNumber'), ('Dataset Name', 'SequenceNumber'), ]
     val_sequence_list = [('Fluo-N2DH-SIM+', '01'), ('Fluo-N2DH-SIM+', '02')]
-    crop_size = (128, 128)
+    crop_size = (128, 128)  # (height, width) preferably height=width 
     batch_size = 5
     unroll_len = 4
-    data_format = 'NCHW'
+    data_format = 'NCHW' # either 'NCHW' or 'NHWC'
     train_q_capacity = 200
     val_q_capacity = 200
     num_val_threads = 2
@@ -49,28 +45,28 @@ class CTCParams(ParamsBase):
     net_model = Nets.ULSTMnet2D
     net_kernel_params = {
         'down_conv_kernels': [
-            [(5, 128), (5, 128)],
-            [(5, 256), (5, 256)],
-            [(5, 256), (5, 256)],
-            [(5, 512), (5, 512)],
+            [(3, 128), (3, 128)],  # [(kernel_size, num_filters), (kernel_size, num_filters), ...] As many convolustoins in each layer
+            [(3, 256), (3, 256)],
+            [(3, 256), (3, 256)],
+            [(3, 512), (3, 512)],
         ],
         'lstm_kernels': [
-            [(5, 128)],
+            [(5, 128)],  # [(kernel_size, num_filters), (kernel_size, num_filters), ...] As many C-LSTMs in each layer
             [(5, 256)],
             [(5, 256)],
             [(5, 512)],
         ],
         'up_conv_kernels': [
-            [(5, 256), (5, 256)],
-            [(5, 128), (5, 128)],
-            [(5, 64), (5, 64)],
-            [(5, 32), (5, 32), (1, 3)],
+            [(3, 256), (3, 256)],   # [(kernel_size, num_filters), (kernel_size, num_filters), ...] As many convolustoins in each layer
+            [(3, 128), (3, 128)],
+            [(3, 64), (3, 64)],
+            [(3, 32), (3, 32), (1, 3)],
         ],
 
     }
 
     # -------- Training ----------
-    class_weights = [0.15, 0.25, 0.6]
+    class_weights = [0.15, 0.25, 0.6] #[background, foreground, cell contour]
     learning_rate = 1e-5
     num_iterations = 1000000
     validation_interval = 1000
@@ -91,6 +87,7 @@ class CTCParams(ParamsBase):
     save_log_dir = ROOT_SAVE_DIR
 
     # ---------Debugging-------------
+    dry_run = False  # Default False! Used for testing, when True no checkpoints or tensorboard outputs will be saved
     profile = False
 
     def __init__(self, params_dict):
