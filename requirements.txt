@@ -1,0 +1,8 @@
+tensorflow_gpu>=2.0.0a0
+numpy>=1.13.3
+matplotlib>=3.0.3
+tifffile>=2019.3.18
+opencv_python>=4.1.0.25
+scipy>=0.19.1
+Pillow>=6.0.0
+typing>=3.6.6
