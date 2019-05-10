@@ -39,20 +39,29 @@ cd <PATH TO CELLTRACKINGCHALLENGE DATA>/Training
 tar -xzvf  <PATH TO REPOSITORY>/metadata_files.tar.gz
 ```
 make sure that metadata_01.pickle and metadata_02.pickle are located in each dataset directory (Only of 2D datasets)
-## Modify Parameters
+## Training
+### Modify Parameters
 
 Open the Params.py file and change the paths for ROOT_DATA_DIR and ROOT_SAVE_DIR. 
-ROOT_DATA_DIR should point to the directory of the cell tracking challenge training data: <PATH TO CELLTRACKINGCHALLENGE DATA>/Training
-and ROOT_SAVE_DIR should point to whichever directory you would like to save the checkpoints and tensorboard logs.
+ROOT_DATA_DIR should point to the directory of the cell tracking challenge training data: <PATH TO CELLTRACKINGCHALLENGE DATA>/Training and ROOT_SAVE_DIR should point to whichever directory you would like to save the checkpoints and tensorboard logs.
 
-### Training:
+  
+
+### Run Training Script:
 In order to set the parameters for training you could either change the parameters if Params.py file under class CTCParams
 or input them through command line.
+You are encourged to go over the parameters in CTCParams to see the avialable options
 The training script is train2D.py
 
 ```
 python3 train2D.py
 ```
+### Training on Private Data:
+Since there are many formats for data and many was to store annotations, we could note come up with a generic data reader.
+So if one would like to train on private data we recommend one of the following:
+1. Save the data in the format of the cell tracking challenge and create the corresponding metadata_<sequenceNumber>.pickle file. 
+2. Write you own Data reader with similar api to ours. See the data reader in DataHandling.py
+
 
 ## Authors
 
