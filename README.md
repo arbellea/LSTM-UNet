@@ -3,6 +3,12 @@
 The code in this repository is suplamentary to our paper "Microscopy Cell Segmentation via Convolutional LSTM Networks" published in ISBI 2019.
 If this code is used please cite the paper:
 
+@article{arbelle2018microscopy,
+  title={Microscopy Cell Segmentation via Convolutional LSTM Networks},
+  author={Arbelle, Assaf and Raviv, Tammy Riklin},
+  journal={arXiv preprint arXiv:1805.11247},
+  year={2018}
+}
 
 ## Getting Started
 
