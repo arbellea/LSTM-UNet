@@ -11,8 +11,10 @@ ROOT_SAVE_DIR = '~/LSTM-UNet-Outputs/'
 
 
 class ParamsBase(object):
+    aws = False
 
     def _override_params_(self, params_dict: dict):
+        os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
         this_dict = self.__class__.__dict__.keys()
         for key, val in params_dict.items():
             if key not in this_dict:

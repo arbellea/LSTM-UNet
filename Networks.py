@@ -80,7 +80,8 @@ class DownBlock2D(k.Model):
         for convlstm_layer in self.ConvLSTM:
             cur_state = convlstm_layer.states
             new_states = (cur_state[0] * is_last_batch, cur_state[1] * is_last_batch)
-            convlstm_layer.reset_states(new_states)
+            convlstm_layer.states[0].assign(new_states[0])
+            convlstm_layer.states[1].assign(new_states[1])
 
     def get_states(self):
         states = []
@@ -202,29 +203,29 @@ class ULSTMnet2D(k.Model):
             self.UpLayers.append(UpBlock2D(conv_filters, up_factor, data_format,
                                            return_logits=layer_ind + 1 == len(net_params['up_conv_kernels'])))
             self.last_depth = conv_filters[-1][1]
-        self.Softmax = k.layers.Softmax(self.channel_axis+1)
+        self.Softmax = k.layers.Softmax(self.channel_axis + 1)
 
     def call(self, inputs, training=None, mask=None):
         input_shape = inputs.shape
         min_pad_value = self.total_stride * int(self.pad_image) if self.pad_image else 0
 
         if self.channel_axis == 1:
-            pad_y = [min_pad_value, min_pad_value + tf.mod(self.total_stride - tf.mod(input_shape[3],
-                                                                                      self.total_stride),
-                                                           self.total_stride)]
-            pad_x = [min_pad_value, min_pad_value + tf.mod(self.total_stride - tf.mod(input_shape[4],
-                                                                                      self.total_stride),
-                                                           self.total_stride)]
+            pad_y = [min_pad_value, min_pad_value + tf.math.mod(self.total_stride - tf.math.mod(input_shape[3],
+                                                                                                self.total_stride),
+                                                                self.total_stride)]
+            pad_x = [min_pad_value, min_pad_value + tf.math.mod(self.total_stride - tf.math.mod(input_shape[4],
+                                                                                                self.total_stride),
+                                                                self.total_stride)]
             paddings = [[0, 0], [0, 0], [0, 0], pad_y, pad_x]
             crops = [[0, input_shape[0]], [0, input_shape[1]], [0, self.last_depth],
                      [pad_y[0], pad_y[0] + input_shape[3]], [pad_x[0], pad_x[0] + input_shape[4]]]
         else:
-            pad_y = [min_pad_value, min_pad_value + tf.mod(self.total_stride - tf.mod(input_shape[2],
-                                                                                      self.total_stride),
-                                                           self.total_stride)]
-            pad_x = [min_pad_value, min_pad_value + tf.mod(self.total_stride - tf.mod(input_shape[3],
-                                                                                      self.total_stride),
-                                                           self.total_stride)]
+            pad_y = [min_pad_value, min_pad_value + tf.math.mod(self.total_stride - tf.math.mod(input_shape[2],
+                                                                                                self.total_stride),
+                                                                self.total_stride)]
+            pad_x = [min_pad_value, min_pad_value + tf.math.mod(self.total_stride - tf.math.mod(input_shape[3],
+                                                                                                self.total_stride),
+                                                                self.total_stride)]
             paddings = [[0, 0], [0, 0], pad_y, pad_x, [0, 0]]
             crops = [[0, input_shape[0]], [0, input_shape[1]], [pad_y[0], input_shape[2] + pad_y[0]],
                      [pad_x[0], input_shape[3] + pad_x[0]], [0, self.last_depth]]
