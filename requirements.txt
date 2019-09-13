@@ -1,5 +1,4 @@
 tensorflow_gpu>=2.0.0a0
-tensorflow>2.0.0a0
 numpy>=1.13.3
 matplotlib>=3.0.3
 tifffile>=2019.3.18
