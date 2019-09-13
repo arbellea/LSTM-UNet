@@ -72,7 +72,7 @@ class CTCParams(ParamsBase):
     learning_rate = 1e-5
     num_iterations = 1000000
     validation_interval = 1000
-    print_to_console_interval = 100
+    print_to_console_interval = 10
 
     # ---------Save and Restore ----------
     load_checkpoint = False
