@@ -76,6 +76,9 @@ So if one would like to train on private data we recommend one of the following:
 Open the Params.py file and change the paths for ROOT_TEST_DATA_DIR. 
 ROOT_TEST_DATA_DIR should point to the directory of the cell tracking challenge training data: <PATH TO CELLTRACKINGCHALLENGE DATA>/Test.
 
+### Download Pre-trained models for Cell Segmentation Benchmark
+If you would like to run the pretrained models for the cell segmentation benchmark datasets, you could download the models from:
+https://drive.google.com/file/d/1uQOdelJoXrffmW_1OCu417nHKtQcH3DJ/view?usp=sharing
 
 ### Run Inference Script:
 In order to set the parameters for training you could either change the parameters if Params.py file under class CTCInferenceParams
