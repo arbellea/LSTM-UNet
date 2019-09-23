@@ -158,8 +158,8 @@ class CTCParams(ParamsBase):
 
 class CTCInferenceParams(ParamsBase):
 
-    gpu_id = 2  # for CPU ise -1 otherwise gpu id
-    model_path = './Models/LSTMUNet2D/PhC-C2DL-PSC/'
+    gpu_id = 0  # for CPU ise -1 otherwise gpu id
+    model_path = './Models/LSTMUNet2D/PhC-C2DL-PSC/' # download from https://drive.google.com/file/d/1uQOdelJoXrffmW_1OCu417nHKtQcH3DJ/view?usp=sharing
     output_path = './tmp/output/PhC-C2DL-PSC/01'
     sequence_path = os.path.join(ROOT_TEST_DATA_DIR, 'PhC-C2DL-PSC/01/')
     filename_format = 't*.tif'  # default format for CTC
