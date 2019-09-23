@@ -3,11 +3,13 @@
 The code in this repository is suplamentary to our paper "Microscopy Cell Segmentation via Convolutional LSTM Networks" published in ISBI 2019.
 If this code is used please cite the paper:
 
-@article{arbelle2018microscopy,
-  title={Microscopy Cell Segmentation via Convolutional LSTM Networks},
+@article{arbelleIsbi2019,
+  title={Microscopy cell segmentation via convolutional LSTM networks},
   author={Arbelle, Assaf and Raviv, Tammy Riklin},
-  journal={arXiv preprint arXiv:1805.11247},
-  year={2018}
+  booktitle={2019 IEEE 16th International Symposium on Biomedical Imaging (ISBI 2019)},
+  pages={1008--1012},
+  year={2019},
+  organization={IEEE}
 }
 
 ## Getting Started
@@ -68,6 +70,22 @@ So if one would like to train on private data we recommend one of the following:
 1. Save the data in the format of the cell tracking challenge and create the corresponding metadata_<sequenceNumber>.pickle file. 
 2. Write you own Data reader with similar api to ours. See the data reader in DataHandling.py
 
+## Inference 
+### Modify Parameters
+
+Open the Params.py file and change the paths for ROOT_TEST_DATA_DIR. 
+ROOT_TEST_DATA_DIR should point to the directory of the cell tracking challenge training data: <PATH TO CELLTRACKINGCHALLENGE DATA>/Test.
+
+
+### Run Inference Script:
+In order to set the parameters for training you could either change the parameters if Params.py file under class CTCInferenceParams
+or input them through command line.
+You are encourged to go over the parameters in CTCInferenceParams to see the avialable options
+The training script is train2D.py
+
+```
+python3 Inference2D.py
+```
 
 ## Authors
 
