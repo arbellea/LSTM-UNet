@@ -7,6 +7,7 @@ __author__ = 'arbellea@post.bgu.ac.il'
 
 
 ROOT_DATA_DIR = '~/CellTrackingChallenge/Training/'
+ROOT_TEST_DATA_DIR = '~/CellTrackingChallenge/Test/'
 ROOT_SAVE_DIR = '~/LSTM-UNet-Outputs/'
 
 
@@ -158,24 +159,25 @@ class CTCParams(ParamsBase):
 class CTCInferenceParams(ParamsBase):
 
     gpu_id = 2  # for CPU ise -1 otherwise gpu id
-    model_path = '/newdisk/arbellea/LSTMUNet-tf2/LSTMUNet/MyRun_SIM/2019-05-06_115804'
-    output_path = './tmp/output'
-    sequence_path = '/media/rrtammyfs/labDatabase/CellTrackingChallenge/Test/Fluo-N2DH-SIM+/01/'
+    model_path = './Models/LSTMUNet2D/PhC-C2DL-PSC/'
+    output_path = './tmp/output/PhC-C2DL-PSC/01'
+    sequence_path = os.path.join(ROOT_TEST_DATA_DIR, 'PhC-C2DL-PSC/01/')
     filename_format = 't*.tif'  # default format for CTC
 
     data_reader = DataHandeling.CTCInferenceReader
-    FOV = 0
     data_format = 'NCHW'  # 'NCHW' or 'NHWC'
-    min_cell_size = 10
-    max_cell_size = 100
-    edge_dist = 5
-    pre_sequence_frames = 0
+
+    FOV = 0 # Delete objects within boundary of size FOV from each side of the image
+    min_cell_size = 10  # Delete objects with less than min_cell_size pixels
+    max_cell_size = 100  # Delete objects with more than max_cell_size pixels
+    edge_dist = 2  # Regard the nearest edge_dist pixels as foreground
+    pre_sequence_frames = 4  # Initialize the sequence with first pre_sequence_frames played in reverse
 
     # ---------Debugging---------
 
-    dry_run = True
-    save_intermediate = False
-    save_intermediate_path = ''
+    dry_run = False
+    save_intermediate = True
+    save_intermediate_path = output_path
 
     def __init__(self, params_dict: dict = None):
         if params_dict is not None:
@@ -185,7 +187,7 @@ class CTCInferenceParams(ParamsBase):
             os.makedirs(self.output_path, exist_ok=True)
             if self.save_intermediate:
                 now_string = datetime.now().strftime('%Y-%m-%d_%H%M%S')
-                self.save_intermediate_path = os.path.join(self.save_intermediate_path, now_string)
+                self.save_intermediate_path = os.path.join(self.save_intermediate_path,'IntermediateImages', now_string)
                 self.save_intermediate_vis_path = os.path.join(self.save_intermediate_path, 'Softmax')
                 self.save_intermediate_label_path = os.path.join(self.save_intermediate_path, 'Labels')
                 os.makedirs(self.save_intermediate_path, exist_ok=True)

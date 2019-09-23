@@ -23,7 +23,6 @@ if not tf.__version__.split('.')[0] == '2':
 
 
 def inference():
-
     # Load Model
     with open(os.path.join(params.model_path, 'model_params.pickle'), 'rb') as fobj:
         model_dict = pickle.load(fobj)
@@ -34,13 +33,18 @@ def inference():
         model = model_cls(*model_dict['params'], data_format=params.data_format, pad_image=True)
         model.load_weights(os.path.join(params.model_path, 'model.ckpt'))
         log_print("Restored from {}".format(os.path.join(params.model_path, 'model.ckpt')))
-
-    base_out_temp_vis_fname = os.path.join(params.save_intermediate_vis_path, 'softmax{:03d}.tif')
-    base_out_temp_label_fname = os.path.join(params.save_intermediate_label_path, 'mask{:03d}.tif')
-    base_out_fname = os.path.join(params.output_path, 'mask{:03d}.tif')
-    dataset = params.data_reader(params.data_format, params.filename_format).dataset
+    base_out_temp_vis_fname = base_out_temp_label_fname = base_out_fname = None
+    if not params.dry_run:
+        if params.save_intermediate_path:
+            base_out_temp_vis_fname = os.path.join(params.save_intermediate_vis_path, 'softmax{time:03d}.tif')
+            base_out_temp_label_fname = os.path.join(params.save_intermediate_label_path, 'mask{time:03d}.tif')
+        base_out_fname = os.path.join(params.output_path, 'mask{time:03d}.tif')
+    dataset = params.data_reader(params.sequence_path, params.filename_format,
+                                 pre_sequence_frames=params.pre_sequence_frames).dataset
     try:
-        for t, image in enumerate(dataset):
+        for T, image in enumerate(dataset):
+            t = T - params.pre_sequence_frames
+
             image_shape = image.shape
             if len(image_shape) == 2:
                 if params.data_format == 'NCHW':
@@ -53,12 +57,14 @@ def inference():
                 raise ValueError()
 
             _, image_softmax = model(image, training=False)
-            image_softmax_np = image_softmax.numpy()
+            image_softmax_np = np.squeeze(image_softmax.numpy(), (0, 1))
+            if t < 0:
+                continue
 
             if not params.dry_run:
 
-                seg_edge = np.greater_equal(image_softmax_np[:, :, 2], 0.2)
-                seg_cell = np.logical_and(np.equal(np.argmax(image_softmax_np, 2), 1).astype(np.float32),
+                seg_edge = np.greater_equal(image_softmax_np[2], 0.2)
+                seg_cell = np.logical_and(np.equal(np.argmax(image_softmax_np, 0), 1).astype(np.float32),
                                           np.logical_not(seg_edge))
                 seg_edge = seg_edge.astype(np.float32)
                 seg_cell = scipy.ndimage.morphology.binary_fill_holes(seg_cell).astype(np.float32)
@@ -96,9 +102,12 @@ def inference():
                 else:
                     remove_ind = []
                 if params.save_intermediate:
-                    sigoutnp_vis = np.flip(np.round(image_softmax_np * (2 ** 16 - 1)).astype(np.uint16), 2)
+
+                    if params.data_format == 'NCHW':
+                        image_softmax_np = np.transpose(image_softmax_np, (1, 2, 0))
                     out_fname = base_out_temp_vis_fname.format(time=t)
-                    cv2.imwrite(filename=out_fname, img=sigoutnp_vis)
+                    sigoutnp_vis = np.flip(np.round(image_softmax_np * (2 ** 16 - 1)).astype(np.uint16), 2)
+                    cv2.imwrite(filename=out_fname, img=sigoutnp_vis.astype(np.uint16))
                     log_print("Saved File: {}".format(out_fname))
 
                 labels_out = np.zeros_like(labels, dtype=np.uint16)
@@ -166,6 +175,7 @@ if __name__ == '__main__':
                 datastets.append((values[i], strtobool(values[i + 1])))
             setattr(namespace, self.dest, datastets)
 
+
     arg_parser = argparse.ArgumentParser(description='Run Inference LSTMUnet Segmentation')
     arg_parser.add_argument('--gpu_id', dest='gpu_id', type=str,
                             help="Visible GPUs: example, '0,2,3', use -1 for CPU")
@@ -205,4 +215,3 @@ if __name__ == '__main__':
         inference()
     finally:
         log_print('Done')
-
