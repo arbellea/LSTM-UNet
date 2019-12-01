@@ -47,6 +47,16 @@ cd <PATH TO CELLTRACKINGCHALLENGE DATA>/Training
 tar -xzvf  <PATH TO REPOSITORY>/metadata_files.tar.gz
 ```
 make sure that metadata_01.pickle and metadata_02.pickle are located in each dataset directory (Only of 2D datasets)
+#### Private Data:
+If you would like to train on your private data, please create a metadata_<SEQ>.pickle file. Run the script './create_sequence_metadat.py' with the paths and formats for your data:
+  --root_dir : Root directory of sequence, example: '~/CellTrackingChallenge/Train/Fluo-N2DH-SIM+
+  --seq : Sequence number (two digit) , example: '01' or '02' 
+  --raw_file_template : Template for image sequences, example: '01/t{:03d}.tif' where {:03d} will be replaced by a three digit number 000,001,...
+  -- seg_file_template : TemplateTemplate for image sequences segmentation , example: '01_GT/SEG/man_seg{:03d}.tif' where {:03d} will be replaced by a three digit number 000,001,...
+  --tra_file_template : Optional!. Template for image sequences tracking lables , example: '01_GT/TRA/man_track{:03d}.tif' where {:03d} will be replaced by a three digit number 000,001,...
+  --force : Force overwrite existing metadata pickle
+
+
 ## Training
 ### Modify Parameters
 
