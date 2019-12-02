@@ -9,7 +9,7 @@ from scipy.ndimage import grey_dilation
 import argparse
 
 
-def main(root_dir, seq, raw_file_template, seg_file_template, tra_file_template=None, force=False):
+def main(root_dir, seq, raw_file_template, seg_file_template, tra_file_template=None, force=False, FOV=80):
     if os.path.exists(os.path.join(root_dir, 'metadata_{}.pickle'.format(seq))) and not force:
         raise FileExistsError('File {} already exists! use --force option to overwrite')
 
@@ -38,12 +38,19 @@ def main(root_dir, seq, raw_file_template, seg_file_template, tra_file_template=
 
             if os.path.basename(seg_file_template.format(t)) in all_seg_files:
                 seg = cv2.imread(os.path.join(root_dir, seg_fname), -1)
-                if tra_fname and os.path.basename(tra_fname.format(t)) in all_tra_files and False:
+                if tra_fname and os.path.basename(tra_fname) in all_tra_files:
                     tra = cv2.imread(os.path.join(root_dir, tra_fname), -1)
-                    if np.all(seg[np.greater(tra, 0)]):
+                    if FOV:
+                        tra[-FOV:,:]=0
+                        tra[:FOV,:]=0
+                        tra[:FOV]=0
+                        tra[:,-FOV:]=0
+                    if len(np.unique(seg))>=len(np.unique(tra)):
                         valid_seg = 'y'
+                        print('y ', tra_fname)
                     else:
                         valid_seg = 'n'
+                        print('n ', tra_fname)
                 elif valid_seg == 'yes to all':
                     pass
                 else:
@@ -69,7 +76,7 @@ def main(root_dir, seq, raw_file_template, seg_file_template, tra_file_template=
 
                 row = (im_fname, seg_fname, tra_fname, valid_seg in ['', 'y', 'yes', 'yes to all'])
             else:
-                row = (im_fname, None, None, None)
+                row = (im_fname, None, tra_fname, None)
             seq_metadata['filelist'].append(row)
 
         else:
@@ -81,7 +88,7 @@ def main(root_dir, seq, raw_file_template, seg_file_template, tra_file_template=
 
 def get_default_run():
     root_dir = '/media/rrtammyfs/labDatabase/CellTrackingChallenge/Training'
-    dataset = 'Fluo-N2DH-SIM+'
+    dataset = 'DIC-C2DH-HeLa'
     seq = '01'
     # seq_metadata[filelist] will be a list of tuples holding (raw_fname, seg_fname, tra_filename, is_seg_val)
     raw_file_template = os.path.join(seq, 't{:03d}.tif')
@@ -123,5 +130,5 @@ if __name__ == '__main__':
         raw_file_template_ = input_args.raw_file_template
         seg_file_template_ = input_args.seg_file_template
         tra_file_template_ = input_args.tra_file_template
-
+    input_args.force = True
     main(root_dir_, seq_, raw_file_template_, seg_file_template_, tra_file_template_, input_args.force)
